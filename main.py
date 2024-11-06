@@ -10,7 +10,7 @@ def conectar_db():
         user=os.environ.get("POSTGRES_USER"),
         password=os.environ.get("POSTGRES_PASSWORD"),
         host=os.environ.get("POSTGRES_HOST"),
-        port=5432
+        port=os.environ.get("CONN_PORT")
     )
     return conn
 
