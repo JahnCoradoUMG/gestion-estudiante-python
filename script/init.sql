@@ -31,7 +31,28 @@ CREATE TABLE notas (
     zona NUMERIC(5,2)
 );
 
-INSERT INTO estudiantes (nombre, apellido, carnet) VALUES ('Ana', 'García', '2890-23-16932'), ('Juan', 'Pérez', '2890-23-32533');
-INSERT INTO cursos (nombre, codigo) VALUES ('Bases de Datos', 'BD101'), ('Programación', 'PROG101');
-INSERT INTO inscripciones (id_estudiante, id_curso, fecha_inscripcion) VALUES (1, 1, '2023-11-01'), (2, 1, '2023-11-01'), (2, 2, '2023-11-01');
-INSERT INTO notas (id_inscripcion, parcial1, parcial2, examen_final, zona) VALUES (1, 12, 15, 25, 38), (2, 10, 12, 20, 28), (3, 13, 14, 27, 40);
+-- Insertar datos de estudiantes
+INSERT INTO estudiantes (nombre, apellido, carnet) 
+VALUES 
+    ('Ana', 'García', '2890-23-16932'),
+    ('Juan', 'Pérez', '2890-23-32533');
+
+-- Insertar datos de cursos
+INSERT INTO cursos (nombre, codigo) 
+VALUES 
+    ('Bases de Datos', 'BD101'),
+    ('Programación', 'PROG101');
+
+-- Insertar datos de inscripciones
+INSERT INTO inscripciones (id_estudiante, id_curso, fecha_inscripcion) 
+VALUES 
+    (1, 1, '2023-11-01'),  -- Ana se inscribe en Bases de Datos
+    (2, 1, '2023-11-01'),  -- Juan se inscribe en Bases de Datos
+    (2, 2, '2023-11-01');  -- Juan se inscribe en Programación
+
+-- Insertar datos de notas
+INSERT INTO notas (id_inscripcion, parcial1, parcial2, examen_final, zona) 
+VALUES 
+    (1, 12, 15, 25, 38),  -- Notas para la inscripción de Ana en Bases de Datos
+    (2, 10, 12, 20, 28),  -- Notas para la inscripción de Juan en Bases de Datos
+    (3, 13, 14, 27, 40);  -- Notas para la inscripción de Juan en Programación

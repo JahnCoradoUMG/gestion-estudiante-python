@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
 # Función para conectar a la base de datos PostgreSQL
 def conectar_db():
     conn = psycopg2.connect(
@@ -15,7 +16,6 @@ def conectar_db():
     return conn
 
 # CRUD de estudiantes
-
 def insertar_estudiante(nombre, apellido, carnet):
     try:
         conn = conectar_db()
@@ -44,7 +44,6 @@ def consultar_estudiante_por_carnet(carnet):
     except (Exception, psycopg2.Error) as error:
         print("Error al consultar el estudiante:", error)
         return None
-    
 
 def actualizar_estudiante(nombre, apellido, carnet):
     try:
@@ -72,13 +71,68 @@ def eliminar_estudiante(carnet):
         if conn:
             conn.close()
 
-#CRUD de cursos
+# CRUD de cursos
+def insertar_curso(nombre, codigo):
+    try:
+        conn = conectar_db()
+        cursor = conn.cursor()
+        sql = '''
+        INSERT INTO cursos (nombre, codigo)
+        VALUES (%s, %s);
+        '''
+        cursor.execute(sql, (nombre, codigo))
+        conn.commit()
+    except (Exception, psycopg2.Error) as error:
+        print("Error al insertar el curso:", error)
+    finally:
+        if conn:
+            conn.close()
 
-#Gestión de Estudiantes y Cursos: inscribir estudiante a curso, editar inscripcion, eliminar inscripcion, y buscar inscripcion.
+def consultar_curso_por_codigo(codigo):
+    try:
+        conn = conectar_db()
+        cursor = conn.cursor()
+        sql = "SELECT * FROM cursos WHERE codigo = %s;"
+        cursor.execute(sql, (codigo,))
+        curso = cursor.fetchone()
+        conn.close()
+        return curso
+    except (Exception, psycopg2.Error) as error:
+        print("Error al consultar el curso:", error)
+        return None
 
-#Busquedas Por nombre, carnet, código de curso, y ver alumnos en cursos.
+def eliminar_curso(codigo):
+    try:
+        conn = conectar_db()
+        cursor = conn.cursor()
+        sql = "DELETE FROM cursos WHERE codigo = %s;"
+        cursor.execute(sql, (codigo,))
+        conn.commit()
+    except (Exception, psycopg2.Error) as error:
+        print("Error al eliminar el curso:", error)
+    finally:
+        if conn:
+            conn.close()
 
-#Reportes
+# CRUD de notas
+def registrar_notas(id_inscripcion, parcial1, parcial2, examen_final, zona):
+    try:
+        conn = conectar_db()
+        cursor = conn.cursor()
+        sql = '''
+        INSERT INTO notas (id_inscripcion, parcial1, parcial2, examen_final, zona)
+        VALUES (%s, %s, %s, %s, %s);
+        '''
+        cursor.execute(sql, (id_inscripcion, parcial1, parcial2, examen_final, zona))
+        conn.commit()
+    except (Exception, psycopg2.Error) as error:
+        print("Error al registrar las notas:", error)
+    finally:
+        if conn:
+            conn.close()
+
+# Reportes
+
 def consultar_alumnos_con_mejores_notas():
     conn = conectar_db()
     cursor = conn.cursor()
@@ -128,38 +182,44 @@ def consultar_alumnos_con_notas_faltantes():
     conn.close()
     return resultados
 
-# En el menú, agrega opciones para las nuevas funcionalidades
+# Menú de opciones
 def menu():
     while True:
         print("1. Agregar estudiante")
         print("2. Consultar estudiante por carnet")
         print("3. Actualizar estudiante")
         print("4. Eliminar estudiante")
-        print("5. Reporte alumnos con mejores notas")
-        print("6. Reporte promedio de alumnos por curso")
-        print("7. Reporte alumnos con notas faltantes")
-        print("8. Salir")
+        print("5. Agregar curso")
+        print("6. Consultar curso por código")
+        print("7. Eliminar curso")
+        print("8. Registrar notas")
+        print("9. Reporte alumnos con mejores notas")
+        print("10. Reporte promedio de alumnos por curso")
+        print("11. Reporte alumnos con notas faltantes")
+        print("12. Salir")
         
         opcion = input("Seleccione una opción: ")
 
         if opcion == '1':
-            carnet = input("Ingrese el carnet del estudiante: ")
-            carrera = input("Ingrese la carrera del estudiante: ")
             nombre = input("Ingrese el nombre del estudiante: ")
-            insertar_estudiante(carnet, carrera, nombre)
+            apellido = input("Ingrese el apellido del estudiante: ")
+            carnet = input("Ingrese el carnet del estudiante: ")
+            insertar_estudiante(nombre, apellido, carnet)
             print("Estudiante insertado exitosamente.")
         
         elif opcion == '2':
             carnet = input("Ingrese el carnet del estudiante: ")
-            estudiantes = consultar_estudiante_por_carnet(carnet)
-            print("Lista de estudiantes:")
-            for est in estudiantes:
-                print(f"Carnet: {est[0]}, Carrera: {est[1]}, Nombre: {est[2]}")
+            estudiante = consultar_estudiante_por_carnet(carnet)
+            if estudiante:
+                print(f"Estudiante encontrado: {estudiante}")
+            else:
+                print("Estudiante no encontrado.")
         
         elif opcion == '3':
             carnet = input("Ingrese el carnet del estudiante a actualizar: ")
-            nueva_carrera = input("Ingrese la nueva carrera: ")
-            actualizar_estudiante(carnet, nueva_carrera)
+            nombre = input("Ingrese el nuevo nombre del estudiante: ")
+            apellido = input("Ingrese el nuevo apellido del estudiante: ")
+            actualizar_estudiante(nombre, apellido, carnet)
             print("Estudiante actualizado exitosamente.")
         
         elif opcion == '4':
@@ -168,24 +228,52 @@ def menu():
             print("Estudiante eliminado exitosamente.")
 
         elif opcion == '5':
+            nombre = input("Ingrese el nombre del curso: ")
+            codigo = input("Ingrese el código del curso: ")
+            insertar_curso(nombre, codigo)
+            print("Curso insertado exitosamente.")
+        
+        elif opcion == '6':
+            codigo = input("Ingrese el código del curso: ")
+            curso = consultar_curso_por_codigo(codigo)
+            if curso:
+                print(f"Curso encontrado: {curso}")
+            else:
+                print("Curso no encontrado.")
+        
+        elif opcion == '7':
+            codigo = input("Ingrese el código del curso a eliminar: ")
+            eliminar_curso(codigo)
+            print("Curso eliminado exitosamente.")
+        
+        elif opcion == '8':
+            id_inscripcion = input("Ingrese el ID de inscripción: ")
+            parcial1 = float(input("Ingrese la calificación del primer parcial: "))
+            parcial2 = float(input("Ingrese la calificación del segundo parcial: "))
+            examen_final = float(input("Ingrese la calificación del examen final: "))
+            zona = float(input("Ingrese la calificación de la zona: "))
+            registrar_notas(id_inscripcion, parcial1, parcial2, examen_final, zona)
+            print("Notas registradas exitosamente.")
+        
+        elif opcion == '9':
             alumnos_con_mejores_notas = consultar_alumnos_con_mejores_notas()
-            print("Alumnos con mejores a peores notas:")
+            print("Alumnos con mejores notas:")
             for alumno in alumnos_con_mejores_notas:
                 print(f"Carnet: {alumno[0]}, Nombre: {alumno[1]}, Apellido: {alumno[2]}, Total de Nota: {alumno[3]}")
         
-        elif opcion == '6':
-            promedios_alumnos = consultar_promedios()
-            print("Promedios por curso y estudiante:")
-            for alumno in promedios_alumnos:
-                print(f"Curso: {alumno[0]}, Nombre: {alumno[1]}, Apellido: {alumno[2]}, Promedio: {alumno[3]}")
-
-        elif opcion == '7':
+        elif opcion == '10':
+            promedios = consultar_promedios()
+            print("Promedio de alumnos por curso:")
+            for promedio in promedios:
+                print(f"Curso: {promedio[0]}, Nombre: {promedio[1]}, Apellido: {promedio[2]}, Promedio: {promedio[3]}")
+        
+        elif opcion == '11':
             alumnos_con_notas_faltantes = consultar_alumnos_con_notas_faltantes()
             print("Alumnos con notas faltantes:")
             for alumno in alumnos_con_notas_faltantes:
                 print(f"Carnet: {alumno[0]}, Nombre: {alumno[1]}, Apellido: {alumno[2]}, Parcial 1: {alumno[3]}, Parcial 2: {alumno[4]}, Examen Final: {alumno[5]}, Zona: {alumno[6]}")
 
-        elif opcion == '8':
+        elif opcion == '12':
             print("Saliendo del sistema. ¡Hasta luego!")
             break
         
